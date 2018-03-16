@@ -67,6 +67,7 @@ public class ChatProtocol {
 
         String responseLine;
         while ((responseLine = is.readLine()) != null) {
+            System.out.println(responseLine);
             if (responseLine.contains("GOODBYE")) {
                 break;
             }

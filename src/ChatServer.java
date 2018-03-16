@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChatServer {
-    private static int PORT = 6789;
+    private static int PORT = 12050;
     private static ServerSocket serverSocket = null;
     private static Socket chatSocket = null;
     private static BufferedWriter os = null;
@@ -27,7 +27,9 @@ public class ChatServer {
 
             String responseLine;
             Map<String, String> data;
+            System.out.println("Server started");
             while (true) {
+                System.out.println("Waiting for connections...");
                 chatSocket = serverSocket.accept();
 
                 os = new BufferedWriter(new OutputStreamWriter(chatSocket.getOutputStream()));
@@ -35,6 +37,7 @@ public class ChatServer {
 
                 data = null;
                 while ((responseLine = is.readLine()) != null) {
+                    System.out.println(responseLine);
                     if (responseLine.contains("HELLO")) {
                         data = ChatProtocol.receive(is);
                         break;

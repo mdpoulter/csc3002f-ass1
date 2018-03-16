@@ -22,13 +22,13 @@ public class ChatProtocol {
         os.flush();
     }
 
-    private static void success(BufferedWriter os) throws IOException {
+    public static void success(BufferedWriter os) throws IOException {
         open(os);
         os.write("SUCCESS: 0\n");
         close(os);
     }
 
-    private static void failure(BufferedWriter os, String message) throws IOException {
+    public static void failure(BufferedWriter os, String message) throws IOException {
         open(os);
         os.write("FAILURE: " + message + "\n");
         close(os);

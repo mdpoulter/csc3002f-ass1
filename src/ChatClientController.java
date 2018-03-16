@@ -75,18 +75,20 @@ public class ChatClientController {
                     }
                 }
 
+                os.close();
+                is.close();
+                chatSocket.close();
+
                 if (data != null && data.get("FUNCTION").equals("SUCCESS")) {
                     connected = true;
-                    waitForMessages();
+                    MessageWaiting waitForMessages = new MessageWaiting();
+                    Thread t = new Thread(waitForMessages);
+                    t.start();
                 } else if (data != null && data.get("FUNCTION").equals("FAILURE")) {
                     messageBox(data.get("FAILURE"));
                 } else {
                     System.err.println("Some other error");
                 }
-
-                os.close();
-                is.close();
-                chatSocket.close();
             } catch (IOException e) {
                 System.err.println("IOException:  " + e);
             }
@@ -116,34 +118,56 @@ public class ChatClientController {
         alert.showAndWait();
     }
 
-    private void waitForMessages() throws IOException {
-        String responseLine;
-        Map<String, String> data;
-        while (connected) {
-            data = null;
-            while ((responseLine = is.readLine()) != null) {
-                if (responseLine.contains("HELLO")) {
-                    data = ChatProtocol.receive(is);
-                    break;
-                }
-            }
+    private class MessageWaiting implements Runnable {
 
-            if (data != null) {
-                switch (data.get("FUNCTION")) {
-                    case "TEXTMESSAGE":
-                        System.out.println(data.get("TEXTMESSAGE"));
-                        break;
-                    case "MESSAGEFILE":
-                        //TODO: Write messages
-                        break;
-                    case "CONNECT":
-                        System.out.println(data.get("CONNECT"));
-                        break;
-                    case "DISCONNECT":
-                        System.out.println(data.get("DISCONNECT"));
-                        break;
+        @Override
+        public void run() {
+            String responseLine;
+            Map<String, String> data;
+
+            try {
+                chatSocket = new Socket(HOST, PORT);
+                os = new BufferedWriter(new OutputStreamWriter(chatSocket.getOutputStream()));
+                is = new BufferedReader(new InputStreamReader(chatSocket.getInputStream()));
+
+                while (connected) {
+                    data = null;
+                    while ((responseLine = is.readLine()) != null) {
+                        if (responseLine.contains("HELLO")) {
+                            data = ChatProtocol.receive(is);
+                            break;
+                        }
+                    }
+
+                    if (data != null) {
+                        switch (data.get("FUNCTION")) {
+                            case "TEXTMESSAGE":
+                                System.out.println(data.get("TEXTMESSAGE"));
+                                break;
+                            case "MESSAGEFILE":
+                                //TODO: Write messages
+                                break;
+                            case "CONNECT":
+                                System.out.println(data.get("CONNECT"));
+                                break;
+                            case "DISCONNECT":
+                                System.out.println(data.get("DISCONNECT"));
+                                break;
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("IOException: " + e);
+            } finally {
+                try {
+                    os.close();
+                    is.close();
+                    chatSocket.close();
+                } catch (IOException e) {
+                    System.err.println("IOException: " + e);
                 }
             }
         }
     }
 }
+

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Student No.: PLTMAT001, MDLKHA012, RTTCHA002
+  ~ Assignment: 1
+  ~ Course: CSC3002F
+  ~ Date: 16 3 2018
+  ~ Copyright (c) 2018. PLTMAT001, MDLKHA012, RTTCHA002
+  -->
+
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.Pane?>
+<TitledPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8"
+            fx:controller="ChatClientController">
+    <content>
+        <SplitPane dividerPositions="0.11229946524064172" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+            <items>
+                <Pane prefHeight="200.0" prefWidth="200.0">
+                    <children>
+                        <TextField id="txfServer" fx:id="txfServer" layoutX="14.0" layoutY="7.0"/>
+                        <TextField id="txfUsername" fx:id="txfUsername" layoutX="172.0" layoutY="7.0"/>
+                        <Button id="btnConnect" fx:id="btnConnect" layoutX="330.0" layoutY="7.0" mnemonicParsing="false"
+                                onAction="#connect" text="Connect"/>
+                    </children>
+                </Pane>
+                <SplitPane dividerPositions="0.2826086956521739" prefHeight="200.0" prefWidth="200.0">
+                    <items>
+                        <Pane prefHeight="200.0" prefWidth="200.0">
+                            <children>
+                                <ListView id="lsvUsers" fx:id="lsvUsers" layoutX="14.0" layoutY="14.0"
+                                          prefHeight="302.0" prefWidth="141.0"/>
+                            </children>
+                        </Pane>
+                        <Pane prefHeight="200.0" prefWidth="200.0">
+                            <children>
+                                <Button id="btnSendMessage" fx:id="btnSendMessage" layoutX="369.0" layoutY="294.0"
+                                        mnemonicParsing="false" onAction="#sendMessage" text="Send"/>
+                                <TextField id="txfMessage" fx:id="txfMessage" layoutX="14.0" layoutY="294.0"
+                                           prefHeight="25.0" prefWidth="349.0"/>
+                                <TextArea id="txaMessages" fx:id="txaMessages" layoutX="14.0" layoutY="14.0"
+                                          prefHeight="273.0" prefWidth="397.0"/>
+                            </children>
+                        </Pane>
+                    </items>
+                </SplitPane>
+            </items>
+        </SplitPane>
+    </content>
+</TitledPane>

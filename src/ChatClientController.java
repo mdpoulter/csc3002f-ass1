@@ -8,10 +8,7 @@
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -25,6 +22,7 @@ public class ChatClientController {
     private Socket chatSocket = null;
     private BufferedWriter os = null;
     private BufferedReader is = null;
+    private boolean connected = false;
 
     @FXML
     private ListView<?> lsvUsers;
@@ -76,9 +74,12 @@ public class ChatClientController {
                 }
 
                 if (data != null && data.get("FUNCTION").equals("SUCCESS")) {
-                    //TODO: waitForMessages();
+                    connected = true;
+                    waitForMessages();
+                } else if (data != null && data.get("FUNCTION").equals("FAILURE")) {
+                    messageBox(data.get("FAILURE"));
                 } else {
-                    //TODO: Failure message
+                    System.err.println("Some other error");
                 }
 
                 os.close();
@@ -93,5 +94,45 @@ public class ChatClientController {
     @FXML
     void sendMessage(ActionEvent event) {
 
+    }
+
+    private void messageBox(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+        alert.showAndWait();
+    }
+
+    private void waitForMessages() throws IOException {
+        String responseLine;
+        Map<String, String> data;
+        while (connected) {
+            data = null;
+            while ((responseLine = is.readLine()) != null) {
+                if (responseLine.contains("HELLO")) {
+                    data = ChatProtocol.receive(is);
+                    break;
+                }
+            }
+
+            if (data != null) {
+                switch (data.get("FUNCTION")) {
+                    case "TEXTMESSAGE":
+
+                        break;
+                    case "MESSAGEFILE":
+                        //TODO: Write messages
+                        break;
+                    case "CONNECT":
+
+                        break;
+                    case "DISCONNECT":
+
+                        break;
+                }
+            }
+        }
     }
 }

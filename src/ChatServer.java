@@ -43,7 +43,7 @@ public class ChatServer {
 
                 if (data != null && data.get("FUNCTION").equals("CONNECT") && !users.containsKey(data.get("CONNECT"))) {
                     users.put(data.get("CONNECT"), chatSocket);
-                    ChatServerThread cst = new ChatServerThread(chatSocket, users);
+                    ChatServerThread cst = new ChatServerThread(chatSocket, users, data.get("CONNECT"));
                     Thread t = new Thread(cst);
                     t.start();
                 } else {

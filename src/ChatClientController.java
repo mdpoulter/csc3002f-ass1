@@ -18,11 +18,12 @@ import java.util.Map;
 public class ChatClientController {
 
     private static String HOST = "127.0.0.1";
-    private static int PORT = 6789;
+    private static int PORT = 12050;
     private Socket chatSocket = null;
     private BufferedWriter os = null;
     private BufferedReader is = null;
     private boolean connected = false;
+    private String username;
 
     @FXML
     private ListView<?> lsvUsers;
@@ -62,7 +63,8 @@ public class ChatClientController {
 
         if (chatSocket != null && os != null && is != null) {
             try {
-                ChatProtocol.connect(os, txfUsername.getText());
+                username = txfUsername.getText();
+                ChatProtocol.connect(os, username);
 
                 String responseLine;
                 Map<String, String> data = null;
@@ -93,7 +95,16 @@ public class ChatClientController {
 
     @FXML
     void sendMessage(ActionEvent event) {
-
+        String message = txfMessage.getText();
+        String usernameTo = message.split(":")[0];
+        message = message.split(":")[1];
+        if (!message.equals("")) {
+            try {
+                ChatProtocol.messageText(os, username, usernameTo, message);
+            } catch (IOException e) {
+                System.err.println("IOException:  " + e);
+            }
+        }
     }
 
     private void messageBox(String message) {
@@ -120,16 +131,16 @@ public class ChatClientController {
             if (data != null) {
                 switch (data.get("FUNCTION")) {
                     case "TEXTMESSAGE":
-
+                        System.out.println(data.get("TEXTMESSAGE"));
                         break;
                     case "MESSAGEFILE":
                         //TODO: Write messages
                         break;
                     case "CONNECT":
-
+                        System.out.println(data.get("CONNECT"));
                         break;
                     case "DISCONNECT":
-
+                        System.out.println(data.get("DISCONNECT"));
                         break;
                 }
             }

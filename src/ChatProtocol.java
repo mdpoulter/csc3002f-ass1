@@ -28,9 +28,9 @@ public class ChatProtocol {
         close(os);
     }
 
-    private static void failure(BufferedWriter os) throws IOException {
+    private static void failure(BufferedWriter os, String message) throws IOException {
         open(os);
-        os.write("FAILURE: 0\n");
+        os.write("FAILURE: " + message + "\n");
         close(os);
     }
 

@@ -17,12 +17,11 @@ public class ChatServer {
     private static Socket chatSocket = null;
     private static BufferedWriter os = null;
     private static BufferedReader is = null;
-    private static Map<String, Socket> users = null;
 
     public static void main(String[] args) {
         try {
             serverSocket = new ServerSocket(ChatProtocol.PORT);
-            users = new HashMap<>();
+            Map<String, Socket> users = new HashMap<>();
 
             String responseLine;
             Map<String, String> data;
@@ -36,7 +35,6 @@ public class ChatServer {
 
                 data = null;
                 while ((responseLine = is.readLine()) != null) {
-                    System.out.println(responseLine);
                     if (responseLine.contains("HELLO")) {
                         data = ChatProtocol.receive(is);
                         break;
@@ -48,12 +46,13 @@ public class ChatServer {
                     ChatServerThread cst = new ChatServerThread(chatSocket, users, data.get("CONNECT"));
                     Thread t = new Thread(cst);
                     t.start();
+                    System.out.println("User connected: " + data.get("CONNECT"));
                 } else {
                     ChatProtocol.failure(os, "Username already exists.");
                 }
             }
         } catch (IOException e) {
-            System.err.println("IOExceptionD:  " + e);
+            e.printStackTrace();
         } finally {
             try {
                 os.close();
@@ -61,7 +60,7 @@ public class ChatServer {
                 chatSocket.close();
                 serverSocket.close();
             } catch (Exception e) {
-                System.err.println("ExceptionC:  " + e);
+                e.printStackTrace();
             }
         }
     }

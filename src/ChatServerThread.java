@@ -63,7 +63,6 @@ public class ChatServerThread implements Runnable {
                             ChatProtocol.success(os);
                             break;
                         case "FILE":
-                            System.out.println(data.get("FILE"));
                             os_ext = new BufferedWriter(new OutputStreamWriter(users.get(data.get("TO")).getOutputStream()));
                             ChatProtocol.messageFile(os_ext, data.get("FROM"), data.get("TO"), data.get("FILE"));
 
@@ -79,10 +78,8 @@ public class ChatServerThread implements Runnable {
                             int count;
                             int counter = 0;
                             while (counter < length) {
-                                System.out.println("CounterS: " + counter);
                                 count = dis.read(buffer);
                                 counter += count;
-                                System.out.println("S:" + new String(buffer));
                                 users.get(data.get("TO")).getOutputStream().write(buffer, 0, count);
                             }
                             users.get(data.get("TO")).getOutputStream().flush();
@@ -115,6 +112,8 @@ public class ChatServerThread implements Runnable {
                             open = false;
 
                             ChatProtocol.success(os);
+
+                            System.out.println("User disconnected: " + username);
                             break;
                     }
                 }
@@ -124,12 +123,11 @@ public class ChatServerThread implements Runnable {
 
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("ExceptionA");
         } finally {
             try {
                 is.close();
             } catch (Exception e) {
-                System.err.println("ExceptionB:  " + e);
+                e.printStackTrace();
             }
         }
     }

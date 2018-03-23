@@ -25,7 +25,6 @@ public class ChatClient extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         URL location = getClass().getResource("ChatClientGUI.fxml");
-        System.out.println(location.getPath());
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(location);
 
@@ -33,6 +32,7 @@ public class ChatClient extends Application {
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setTitle("Chat Client");
+        stage.setResizable(false);
         stage.show();
         controller = fxmlLoader.getController();
         controller.load();

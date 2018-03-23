@@ -18,7 +18,6 @@ import javafx.stage.FileChooser;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -81,10 +80,9 @@ public class ChatClientController {
                 dis = chatSocket.getInputStream();
                 is = new BufferedReader(new InputStreamReader(dis));
             } catch (UnknownHostException e) {
-                System.err.println("Can't find server...");
-                e.printStackTrace();
+                messageBox("Can't find server...");
             } catch (IOException e) {
-                System.err.println("Couldn't make i/o connection to server...");
+                messageBox("Couldn't make i/o connection to server...");
             }
 
             if (chatSocket != null && os != null && is != null) {
@@ -108,16 +106,15 @@ public class ChatClientController {
                         Thread t = new Thread(mw);
                         t.start();
 
-                        panMessages.setDisable(false);
                         panUsers.setDisable(false);
                     } else if (data != null && data.get("FUNCTION").equals("FAILURE")) {
                         messageBox(data.get("FAILURE"));
                         panConnect.setDisable(false);
                     } else {
-                        System.err.println("Some other error");
+                        messageBox("An unknown error has occurred.");
                     }
                 } catch (IOException e) {
-                    System.err.println("IOExceptionH:  " + e);
+                    e.printStackTrace();
                 }
             } else {
                 panConnect.setDisable(false);
@@ -135,7 +132,7 @@ public class ChatClientController {
                 addMessage(usernameTo, username, message);
                 txfMessage.setText("");
             } catch (IOException e) {
-                System.err.println("IOExceptionG:  " + e);
+                e.printStackTrace();
             }
         }
     }
@@ -151,7 +148,7 @@ public class ChatClientController {
                 files.put(file.getName(), file);
                 addMessage(usernameTo, username, "File sent: " + file.getName());
             } catch (IOException e) {
-                System.err.println("IOExceptionI:  " + e);
+                e.printStackTrace();
             }
         }
     }
@@ -164,8 +161,10 @@ public class ChatClientController {
     private void reprintMessages() {
         if (lsvUsers.getSelectionModel().getSelectedItem() == null) {
             txaMessages.setText("");
+            panMessages.setDisable(true);
         } else {
             txaMessages.setText(messages.get(lsvUsers.getSelectionModel().getSelectedItem()));
+            panMessages.setDisable(false);
         }
         txaMessages.positionCaret(txaMessages.getText() == null ? 0 : txaMessages.getText().length());
     }
@@ -185,7 +184,7 @@ public class ChatClientController {
             }
             connected = false;
         } catch (IOException e) {
-            System.err.println("IOExceptionG:  " + e);
+            e.printStackTrace();
         }
     }
 
@@ -272,9 +271,6 @@ public class ChatClientController {
                             case "ACCEPTFILE":
                                 Map<String, String> finalData5 = data;
 
-                                System.out.println(Arrays.toString(files.entrySet().toArray()));
-                                System.out.println(finalData5.get("ACCEPTFILE"));
-
                                 ChatProtocol.sendFile(os, dos, username, finalData5.get("FROM"), finalData5.get("ACCEPTFILE"), files.get(finalData5.get("ACCEPTFILE")), -1);
 
                                 files.remove(finalData5.get("ACCEPTFILE"));
@@ -299,16 +295,13 @@ public class ChatClientController {
                                     int count;
                                     int counter = 0;
                                     while (counter < Long.parseLong(finalData6.get("LENGTH"))) {
-                                        System.out.println("CounterC: " + counter);
                                         count = dis.read(buffer);
                                         counter += count;
-                                        System.out.println("C:" + new String(buffer));
                                         out.write(buffer, 0, count);
                                     }
                                     out.flush();
                                     out.close();
 
-                                    System.out.println("File received: " + finalData6.get("FILEBYTES"));
                                     Platform.runLater(() -> addMessage(finalData6.get("FROM"), finalData6.get("FROM"), "File received: " + finalData6.get("FILEBYTES")));
 
                                     saves.remove(finalData6.get("FILEBYTES"));
@@ -331,14 +324,14 @@ public class ChatClientController {
                     }
                 }
             } catch (IOException e) {
-                System.err.println("IOExceptionE: " + e);
+                e.printStackTrace();
             } finally {
                 try {
                     os.close();
                     is.close();
                     chatSocket.close();
                 } catch (IOException e) {
-                    System.err.println("IOExceptionF: " + e);
+                    e.printStackTrace();
                 }
             }
 

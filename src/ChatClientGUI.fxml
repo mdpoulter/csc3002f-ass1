@@ -17,61 +17,47 @@
 <VBox xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
       minWidth="-Infinity" prefHeight="418.0" prefWidth="691.0" xmlns="http://javafx.com/javafx/8"
       fx:controller="ChatClientController">
-    <children>
-        <SplitPane dividerPositions="0.11229946524064172" orientation="VERTICAL" prefHeight="446.0" prefWidth="687.0">
-            <items>
-                <Pane id="panConnect" fx:id="panConnect" maxHeight="-Infinity" maxWidth="-Infinity"
-                      minHeight="-Infinity" minWidth="-Infinity" prefHeight="42.0" prefWidth="685.0">
-                    <children>
-                        <TextField id="txfUsername" fx:id="txfUsername" layoutX="360.0" layoutY="9.0"
-                                   onAction="#connect" prefHeight="25.0" prefWidth="240.0"/>
-                        <TextField id="txfServer" fx:id="txfServer" layoutX="56.0" layoutY="9.0" maxHeight="-Infinity"
-                                   maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#connect"
-                                   prefHeight="25.0" prefWidth="240.0" text="localhost"/>
-                        <Button id="btnConnect" layoutX="611.0" layoutY="9.0" mnemonicParsing="false"
-                                onAction="#connect" text="Connect"/>
-                        <Text id="lblServer" layoutX="14.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                              text="Server"/>
-                        <Text id="lblUsername" layoutX="300.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                              text="Username"/>
-                    </children>
-                </Pane>
-                <SplitPane dividerPositions="0.2826086956521739" prefHeight="388.0" prefWidth="685.0">
-                    <items>
-                        <Pane id="panUsers" fx:id="panUsers" disable="true" maxWidth="-Infinity" minHeight="-Infinity"
-                              minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0">
-                            <children>
-                                <ListView id="lsvUsers" fx:id="lsvUsers" layoutX="14.0" layoutY="14.0"
-                                          prefHeight="302.0" prefWidth="141.0"/>
-                            </children>
-                        </Pane>
-                        <Pane id="panMessages" fx:id="panMessages" disable="true" prefHeight="200.0" prefWidth="200.0">
-                            <children>
-                                <Button id="btnSendMessage" layoutX="369.0" layoutY="294.0" mnemonicParsing="false"
-                                        onAction="#sendMessage" prefHeight="50.0" prefWidth="50.0" text="Send"/>
-                                <TextField id="txfMessage" fx:id="txfMessage" layoutX="14.0" layoutY="294.0"
-                                           onAction="#sendMessage" prefHeight="47.0" prefWidth="349.0"
-                                           promptText="Enter message"/>
-                                <TextArea id="txaMessages" fx:id="txaMessages" editable="false" layoutX="18.0"
-                                          layoutY="20.0" maxHeight="-Infinity" maxWidth="-Infinity"
-                                          minHeight="-Infinity" minWidth="-Infinity" prefHeight="270.0"
-                                          prefWidth="435.0" wrapText="true"/>
-                                <Button id="btnSendFile" fx:id="btnSendFile" layoutX="422.0" layoutY="294.0"
-                                        mnemonicParsing="false" onAction="#sendFile" prefHeight="50.0" prefWidth="50.0">
-                                    <graphic>
-                                        <ImageView id="imgPaperclip" fitHeight="25.0" fitWidth="24.0"
-                                                   pickOnBounds="true" preserveRatio="true">
-                                            <image>
-                                                <Image url="@img/paperclip.png"/>
-                                            </image>
-                                        </ImageView>
-                                    </graphic>
-                                </Button>
-                            </children>
-                        </Pane>
-                    </items>
-                </SplitPane>
-            </items>
+    <SplitPane dividerPositions="0.11229946524064172" orientation="VERTICAL" prefHeight="446.0" prefWidth="687.0">
+        <Pane id="panConnect" fx:id="panConnect" maxHeight="-Infinity" maxWidth="-Infinity"
+              minHeight="-Infinity" minWidth="-Infinity" prefHeight="42.0" prefWidth="685.0">
+            <TextField id="txfUsername" fx:id="txfUsername" layoutX="360.0" layoutY="9.0"
+                       onAction="#connect" prefHeight="25.0" prefWidth="240.0"/>
+            <TextField id="txfServer" fx:id="txfServer" layoutX="56.0" layoutY="9.0" maxHeight="-Infinity"
+                       maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#connect"
+                       prefHeight="25.0" prefWidth="240.0" text="localhost"/>
+            <Button id="btnConnect" layoutX="611.0" layoutY="9.0" mnemonicParsing="false"
+                    onAction="#connect" text="Connect"/>
+            <Text id="lblServer" layoutX="14.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                  text="Server"/>
+            <Text id="lblUsername" layoutX="300.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                  text="Username"/>
+        </Pane>
+        <SplitPane dividerPositions="0.2826086956521739" prefHeight="388.0" prefWidth="685.0">
+            <Pane id="panUsers" fx:id="panUsers" disable="true" maxWidth="-Infinity" minHeight="-Infinity"
+                  minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0">
+                <ListView id="lsvUsers" fx:id="lsvUsers" layoutX="14.0" layoutY="14.0"
+                          prefHeight="302.0" prefWidth="141.0"/>
+            </Pane>
+            <Pane id="panMessages" fx:id="panMessages" disable="true" prefHeight="200.0" prefWidth="200.0">
+                <Button id="btnSendMessage" layoutX="369.0" layoutY="294.0" mnemonicParsing="false"
+                        onAction="#sendMessage" prefHeight="50.0" prefWidth="50.0" text="Send"/>
+                <TextField id="txfMessage" fx:id="txfMessage" layoutX="14.0" layoutY="294.0"
+                           onAction="#sendMessage" prefHeight="47.0" prefWidth="349.0"
+                           promptText="Enter message"/>
+                <TextArea id="txaMessages" fx:id="txaMessages" editable="false" layoutX="18.0"
+                          layoutY="20.0" maxHeight="-Infinity" maxWidth="-Infinity"
+                          minHeight="-Infinity" minWidth="-Infinity" prefHeight="270.0"
+                          prefWidth="435.0" wrapText="true"/>
+                <Button id="btnSendFile" fx:id="btnSendFile" layoutX="422.0" layoutY="294.0"
+                        mnemonicParsing="false" onAction="#sendFile" prefHeight="50.0" prefWidth="50.0">
+                    <graphic>
+                        <ImageView id="imgPaperclip" fitHeight="25.0" fitWidth="24.0"
+                                   pickOnBounds="true" preserveRatio="true">
+                            <Image url="@img/paperclip.png"/>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </Pane>
         </SplitPane>
-    </children>
+    </SplitPane>
 </VBox>

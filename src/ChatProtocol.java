@@ -12,6 +12,7 @@ import java.util.Map;
 
 public class ChatProtocol {
     public static final int PORT = 12050;
+    private static final boolean DEBUG = false;
 
     private static void open(BufferedWriter os) throws IOException {
         os.write("HELLO\n");
@@ -97,10 +98,8 @@ public class ChatProtocol {
             while (counter < length) {
                 count = in.read(buffer);
                 counter += count;
-                System.out.println("P:" + new String(buffer));
                 dos.write(buffer, 0, count);
             }
-            System.out.println("1");
             dos.flush();
             in.close();
         }
@@ -110,8 +109,9 @@ public class ChatProtocol {
         Map<String, String> m = new HashMap<>();
 
         String responseLine;
+        if (DEBUG) System.out.println("HELLO");
         while ((responseLine = is.readLine()) != null) {
-            System.out.println(responseLine);
+            if (DEBUG) System.out.println(responseLine);
             if (responseLine.contains("GOODBYE")) {
                 break;
             }

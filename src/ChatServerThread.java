@@ -2,38 +2,35 @@
  * Student No.: PLTMAT001, MDLKHA012, RTTCHA002
  * Assignment: 1
  * Course: CSC3002F
- * Date: 16 3 2018
+ * Date: 23 3 2018
  * Copyright (c) 2018. PLTMAT001, MDLKHA012, RTTCHA002
  */
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.Map;
 
 public class ChatServerThread implements Runnable {
-    private Socket chatSocket = null;
+    private Socket chatSocket;
     private BufferedReader is = null;
-    private BufferedWriter os = null;
-    private BufferedWriter os_ext = null;
-    private Map<String, Socket> users = null;
+    private Map<String, Socket> users;
     private String username;
 
-    public ChatServerThread(Socket chatSocket, Map<String, Socket> users, String username) {
+    ChatServerThread(Socket chatSocket, Map<String, Socket> users, String username) {
         this.chatSocket = chatSocket;
         this.users = users;
         this.username = username;
     }
 
+    @Override
     public void run() {
         try {
-            os = new BufferedWriter(new OutputStreamWriter(chatSocket.getOutputStream()));
+            BufferedWriter os = new BufferedWriter(new OutputStreamWriter(chatSocket.getOutputStream()));
             is = new BufferedReader(new InputStreamReader(chatSocket.getInputStream()));
 
             ChatProtocol.success(os);
 
+            BufferedWriter os_ext;
             for (Map.Entry<String, Socket> entry : users.entrySet()) {
                 String username_ext = entry.getKey();
                 Socket chatSocket_ext = entry.getValue();
@@ -41,7 +38,7 @@ public class ChatServerThread implements Runnable {
                 if (!username_ext.equals(username)) {
                     os_ext = new BufferedWriter(new OutputStreamWriter(chatSocket_ext.getOutputStream()));
                     ChatProtocol.connect(os_ext, username);
-                    os_ext.close();
+                    ChatProtocol.connect(os, username_ext);
                 }
             }
 
@@ -61,13 +58,40 @@ public class ChatServerThread implements Runnable {
                         case "TEXTMESSAGE":
                             os_ext = new BufferedWriter(new OutputStreamWriter(users.get(data.get("TO")).getOutputStream()));
                             ChatProtocol.messageText(os_ext, data.get("FROM"), data.get("TO"), data.get("TEXTMESSAGE"));
-                            os_ext.close();
 
                             ChatProtocol.success(os);
                             break;
-                        case "MESSAGEFILE":
-                            //TODO: Write messages
-                            ChatProtocol.failure(os, "Unsupported.");
+                        case "FILE":
+                            os_ext = new BufferedWriter(new OutputStreamWriter(users.get(data.get("TO")).getOutputStream()));
+                            ChatProtocol.messageFile(os_ext, data.get("FROM"), data.get("TO"), data.get("FILE"));
+
+                            ChatProtocol.success(os);
+                            break;
+                        case "FILEBYTES":
+                            os_ext = new BufferedWriter(new OutputStreamWriter(users.get(data.get("TO")).getOutputStream()));
+                            ChatProtocol.sendFile(os_ext, null, data.get("FROM"), data.get("TO"), data.get("FILE"), null);
+
+                            byte[] buffer = new byte[16 * 1024];
+                            InputStream in = chatSocket.getInputStream();
+
+                            int count;
+                            while ((count = in.read(buffer)) > 0) {
+                                users.get(data.get("TO")).getOutputStream().write(buffer, 0, count);
+                            }
+
+                            ChatProtocol.success(os);
+                            break;
+                        case "ACCEPTFILE":
+                            os_ext = new BufferedWriter(new OutputStreamWriter(users.get(data.get("TO")).getOutputStream()));
+                            ChatProtocol.acceptFile(os_ext, data.get("FROM"), data.get("TO"), data.get("FILE"));
+
+                            ChatProtocol.success(os);
+                            break;
+                        case "DECLINEFILE":
+                            os_ext = new BufferedWriter(new OutputStreamWriter(users.get(data.get("TO")).getOutputStream()));
+                            ChatProtocol.declineFile(os_ext, data.get("FROM"), data.get("TO"), data.get("FILE"));
+
+                            ChatProtocol.success(os);
                             break;
                         case "DISCONNECT":
                             for (Map.Entry<String, Socket> entry : users.entrySet()) {
@@ -77,7 +101,6 @@ public class ChatServerThread implements Runnable {
                                 if (!username_ext.equals(username)) {
                                     os_ext = new BufferedWriter(new OutputStreamWriter(chatSocket_ext.getOutputStream()));
                                     ChatProtocol.disconnect(os_ext, username);
-                                    os_ext.close();
                                 }
                             }
 
@@ -92,13 +115,13 @@ public class ChatServerThread implements Runnable {
             users.remove(username);
 
         } catch (Exception e) {
-            System.err.println("Exception:  " + e);
+            System.err.println("ExceptionA:  " + e);
+            e.printStackTrace();
         } finally {
             try {
-                os.close();
                 is.close();
             } catch (Exception e) {
-                System.err.println("Exception:  " + e);
+                System.err.println("ExceptionB:  " + e);
             }
         }
     }

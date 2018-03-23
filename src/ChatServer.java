@@ -2,7 +2,7 @@
  * Student No.: PLTMAT001, MDLKHA012, RTTCHA002
  * Assignment: 1
  * Course: CSC3002F
- * Date: 16 3 2018
+ * Date: 23 3 2018
  * Copyright (c) 2018. PLTMAT001, MDLKHA012, RTTCHA002
  */
 
@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChatServer {
-    private static int PORT = 12050;
     private static ServerSocket serverSocket = null;
     private static Socket chatSocket = null;
     private static BufferedWriter os = null;
@@ -22,7 +21,7 @@ public class ChatServer {
 
     public static void main(String[] args) {
         try {
-            serverSocket = new ServerSocket(PORT);
+            serverSocket = new ServerSocket(ChatProtocol.PORT);
             users = new HashMap<>();
 
             String responseLine;
@@ -54,7 +53,7 @@ public class ChatServer {
                 }
             }
         } catch (IOException e) {
-            System.err.println("IOException:  " + e);
+            System.err.println("IOExceptionD:  " + e);
         } finally {
             try {
                 os.close();
@@ -62,7 +61,7 @@ public class ChatServer {
                 chatSocket.close();
                 serverSocket.close();
             } catch (Exception e) {
-                System.err.println("Exception:  " + e);
+                System.err.println("ExceptionC:  " + e);
             }
         }
     }

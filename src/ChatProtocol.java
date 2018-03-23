@@ -2,17 +2,17 @@
  * Student No.: PLTMAT001, MDLKHA012, RTTCHA002
  * Assignment: 1
  * Course: CSC3002F
- * Date: 16 3 2018
+ * Date: 23 3 2018
  * Copyright (c) 2018. PLTMAT001, MDLKHA012, RTTCHA002
  */
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ChatProtocol {
+    public static final int PORT = 12050;
+
     private static void open(BufferedWriter os) throws IOException {
         os.write("HELLO\n");
     }
@@ -54,12 +54,46 @@ public class ChatProtocol {
         close(os);
     }
 
-    public static void messageFile(BufferedWriter os, String usernameFrom, String usernameTo, String file) throws IOException {
+    public static void messageFile(BufferedWriter os, String usernameFrom, String usernameTo, String filename) throws IOException {
         open(os);
         os.write("FROM: " + usernameFrom + "\n");
         os.write("TO: " + usernameTo + "\n");
-        os.write("FILE: " + file + "\n");
+        os.write("FILE: " + filename + "\n");
         close(os);
+    }
+
+    public static void acceptFile(BufferedWriter os, String usernameFrom, String usernameTo, String filename) throws IOException {
+        open(os);
+        os.write("FROM: " + usernameFrom + "\n");
+        os.write("TO: " + usernameTo + "\n");
+        os.write("ACCEPTFILE:  " + filename + "\n");
+        close(os);
+    }
+
+    public static void declineFile(BufferedWriter os, String usernameFrom, String usernameTo, String filename) throws IOException {
+        open(os);
+        os.write("FROM: " + usernameFrom + "\n");
+        os.write("TO: " + usernameTo + "\n");
+        os.write("DECLINEFILE:  " + filename + "\n");
+        close(os);
+    }
+
+    public static void sendFile(BufferedWriter os, OutputStream dos, String usernameFrom, String usernameTo, String filename, File file) throws IOException {
+        os.write("HELLOBYTES\n");
+        os.write("FROM: " + usernameFrom + "\n");
+        os.write("TO: " + usernameTo + "\n");
+        os.write("FILEBYTES: " + filename + "\n");
+        close(os);
+
+        if (file != null) {
+            byte[] buffer = new byte[16 * 1024];
+            InputStream in = new FileInputStream(file);
+
+            int count;
+            while ((count = in.read(buffer)) > 0) {
+                dos.write(buffer, 0, count);
+            }
+        }
     }
 
     public static Map<String, String> receive(BufferedReader is) throws IOException {
@@ -82,10 +116,16 @@ public class ChatProtocol {
             m.put("FUNCTION", "TEXTMESSAGE");
         } else if (m.containsKey("FILE")) {
             m.put("FUNCTION", "FILE");
+        } else if (m.containsKey("FILEBYTES")) {
+            m.put("FUNCTION", "FILEBYTES");
         } else if (m.containsKey("SUCCESS")) {
             m.put("FUNCTION", "SUCCESS");
         } else if (m.containsKey("FAILURE")) {
             m.put("FUNCTION", "FAILURE");
+        } else if (m.containsKey("ACCEPTFILE")) {
+            m.put("FUNCTION", "ACCEPTFILE");
+        } else if (m.containsKey("DECLINEFILE")) {
+            m.put("FUNCTION", "DECLINEFILE");
         } else {
             m.put("FUNCTION", "UNKNOWN");
         }

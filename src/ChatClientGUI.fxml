@@ -62,7 +62,7 @@
                                         <ImageView id="imgPaperclip" fitHeight="25.0" fitWidth="24.0"
                                                    pickOnBounds="true" preserveRatio="true">
                                             <image>
-                                                <Image url="@../img/paperclip.png"/>
+                                                <Image url="@img/paperclip.png"/>
                                             </image>
                                         </ImageView>
                                     </graphic>

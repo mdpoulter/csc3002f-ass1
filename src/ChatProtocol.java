@@ -66,7 +66,7 @@ public class ChatProtocol {
         open(os);
         os.write("FROM: " + usernameFrom + "\n");
         os.write("TO: " + usernameTo + "\n");
-        os.write("ACCEPTFILE:  " + filename + "\n");
+        os.write("ACCEPTFILE: " + filename + "\n");
         close(os);
     }
 
@@ -74,15 +74,18 @@ public class ChatProtocol {
         open(os);
         os.write("FROM: " + usernameFrom + "\n");
         os.write("TO: " + usernameTo + "\n");
-        os.write("DECLINEFILE:  " + filename + "\n");
+        os.write("DECLINEFILE: " + filename + "\n");
         close(os);
     }
 
-    public static void sendFile(BufferedWriter os, OutputStream dos, String usernameFrom, String usernameTo, String filename, File file) throws IOException {
+    public static void sendFile(BufferedWriter os, OutputStream dos, String usernameFrom, String usernameTo, String filename, File file, long length) throws IOException {
+        length = (file != null || length == -1) ? file.length() : length;
+
         os.write("HELLOBYTES\n");
         os.write("FROM: " + usernameFrom + "\n");
         os.write("TO: " + usernameTo + "\n");
         os.write("FILEBYTES: " + filename + "\n");
+        os.write("LENGTH: " + length + "\n");
         close(os);
 
         if (file != null) {
@@ -90,9 +93,16 @@ public class ChatProtocol {
             InputStream in = new FileInputStream(file);
 
             int count;
-            while ((count = in.read(buffer)) > 0) {
+            int counter = 0;
+            while (counter < length) {
+                count = in.read(buffer);
+                counter += count;
+                System.out.println("P:" + new String(buffer));
                 dos.write(buffer, 0, count);
             }
+            System.out.println("1");
+            dos.flush();
+            in.close();
         }
     }
 

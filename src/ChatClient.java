@@ -12,8 +12,8 @@ import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
 
 public class ChatClient extends Application {
     private ChatClientController controller;
@@ -24,15 +24,17 @@ public class ChatClient extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        String fxmlDocPath = "src/ChatClientGUI.fxml";
-        FileInputStream fxmlStream = new FileInputStream(fxmlDocPath);
-        VBox root = loader.load(fxmlStream);
+        URL location = getClass().getResource("ChatClientGUI.fxml");
+        System.out.println(location.getPath());
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(location);
+
+        VBox root = fxmlLoader.load(location.openStream());
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setTitle("Chat Client");
         stage.show();
-        controller = loader.getController();
+        controller = fxmlLoader.getController();
         controller.load();
     }
 

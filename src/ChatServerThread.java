@@ -26,7 +26,8 @@ public class ChatServerThread implements Runnable {
     public void run() {
         try {
             BufferedWriter os = new BufferedWriter(new OutputStreamWriter(chatSocket.getOutputStream()));
-            is = new BufferedReader(new InputStreamReader(chatSocket.getInputStream()));
+            InputStream dis = chatSocket.getInputStream();
+            is = new BufferedReader(new InputStreamReader(dis));
 
             ChatProtocol.success(os);
 
@@ -62,6 +63,7 @@ public class ChatServerThread implements Runnable {
                             ChatProtocol.success(os);
                             break;
                         case "FILE":
+                            System.out.println(data.get("FILE"));
                             os_ext = new BufferedWriter(new OutputStreamWriter(users.get(data.get("TO")).getOutputStream()));
                             ChatProtocol.messageFile(os_ext, data.get("FROM"), data.get("TO"), data.get("FILE"));
 
@@ -69,27 +71,33 @@ public class ChatServerThread implements Runnable {
                             break;
                         case "FILEBYTES":
                             os_ext = new BufferedWriter(new OutputStreamWriter(users.get(data.get("TO")).getOutputStream()));
-                            ChatProtocol.sendFile(os_ext, null, data.get("FROM"), data.get("TO"), data.get("FILE"), null);
+                            long length;
+                            ChatProtocol.sendFile(os_ext, null, data.get("FROM"), data.get("TO"), data.get("FILEBYTES"), null, length = Long.parseLong(data.get("LENGTH")));
 
                             byte[] buffer = new byte[16 * 1024];
-                            InputStream in = chatSocket.getInputStream();
 
                             int count;
-                            while ((count = in.read(buffer)) > 0) {
+                            int counter = 0;
+                            while (counter < length) {
+                                System.out.println("CounterS: " + counter);
+                                count = dis.read(buffer);
+                                counter += count;
+                                System.out.println("S:" + new String(buffer));
                                 users.get(data.get("TO")).getOutputStream().write(buffer, 0, count);
                             }
+                            users.get(data.get("TO")).getOutputStream().flush();
 
                             ChatProtocol.success(os);
                             break;
                         case "ACCEPTFILE":
                             os_ext = new BufferedWriter(new OutputStreamWriter(users.get(data.get("TO")).getOutputStream()));
-                            ChatProtocol.acceptFile(os_ext, data.get("FROM"), data.get("TO"), data.get("FILE"));
+                            ChatProtocol.acceptFile(os_ext, data.get("FROM"), data.get("TO"), data.get("ACCEPTFILE"));
 
                             ChatProtocol.success(os);
                             break;
                         case "DECLINEFILE":
                             os_ext = new BufferedWriter(new OutputStreamWriter(users.get(data.get("TO")).getOutputStream()));
-                            ChatProtocol.declineFile(os_ext, data.get("FROM"), data.get("TO"), data.get("FILE"));
+                            ChatProtocol.declineFile(os_ext, data.get("FROM"), data.get("TO"), data.get("DECLINEFILE"));
 
                             ChatProtocol.success(os);
                             break;
@@ -115,8 +123,8 @@ public class ChatServerThread implements Runnable {
             users.remove(username);
 
         } catch (Exception e) {
-            System.err.println("ExceptionA:  " + e);
             e.printStackTrace();
+            System.err.println("ExceptionA");
         } finally {
             try {
                 is.close();

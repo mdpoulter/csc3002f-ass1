@@ -18,6 +18,7 @@ import javafx.stage.FileChooser;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +36,8 @@ public class ChatClientController {
     private InputStream dis = null;
     private Map<String, String> messages = new HashMap<>();
     private Map<String, File> files = new HashMap<>();
+    private Map<String, File> saves = new HashMap<>();
+
     @FXML
     private Pane panConnect;
 
@@ -164,7 +167,7 @@ public class ChatClientController {
         } else {
             txaMessages.setText(messages.get(lsvUsers.getSelectionModel().getSelectedItem()));
         }
-        txaMessages.positionCaret(txaMessages.getText().length());
+        txaMessages.positionCaret(txaMessages.getText() == null ? 0 : txaMessages.getText().length());
     }
 
     void load() {
@@ -234,12 +237,24 @@ public class ChatClientController {
                                 Map<String, String> finalData = data;
                                 Platform.runLater(() -> addMessage(finalData.get("FROM"), finalData.get("FROM"), finalData.get("TEXTMESSAGE")));
                                 break;
-                            case "MESSAGEFILE":
+                            case "FILE":
                                 Map<String, String> finalData3 = data;
                                 Platform.runLater(() -> {
                                     if (fileMessageBox(finalData3.get("FROM"), finalData3.get("FILE"))) {
                                         try {
-                                            ChatProtocol.acceptFile(os, username, finalData3.get("FROM"), finalData3.get("FILE"));
+                                            DirectoryChooser chooser = new DirectoryChooser();
+                                            chooser.setTitle("Select folder to save file");
+                                            chooser.setInitialDirectory(
+                                                    new File(System.getProperty("user.home"))
+                                            );
+                                            File path = chooser.showDialog(btnSendFile.getScene().getWindow());
+                                            if (path != null) {
+                                                saves.put(finalData3.get("FILE"), path);
+
+                                                ChatProtocol.acceptFile(os, username, finalData3.get("FROM"), finalData3.get("FILE"));
+                                            } else {
+                                                ChatProtocol.declineFile(os, username, finalData3.get("FROM"), finalData3.get("FILE"));
+                                            }
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         }
@@ -257,47 +272,49 @@ public class ChatClientController {
                             case "ACCEPTFILE":
                                 Map<String, String> finalData5 = data;
 
-                                ChatProtocol.sendFile(os, dos, username, finalData5.get("FROM"), finalData5.get("FILE"), files.get(finalData5.get("FILE")));
+                                System.out.println(Arrays.toString(files.entrySet().toArray()));
+                                System.out.println(finalData5.get("ACCEPTFILE"));
 
-                                files.remove(finalData5.get("FILE"));
-                                Platform.runLater(() -> addMessage(finalData5.get("FROM"), finalData5.get("FROM"), "File accepted: " + finalData5.get("FILE")));
+                                ChatProtocol.sendFile(os, dos, username, finalData5.get("FROM"), finalData5.get("ACCEPTFILE"), files.get(finalData5.get("ACCEPTFILE")), -1);
+
+                                files.remove(finalData5.get("ACCEPTFILE"));
+                                Platform.runLater(() -> addMessage(finalData5.get("FROM"), finalData5.get("FROM"), "File accepted: " + finalData5.get("ACCEPTFILE")));
                                 break;
                             case "DECLINEFILE":
                                 Map<String, String> finalData4 = data;
-                                files.remove(finalData4.get("FILE"));
-                                Platform.runLater(() -> addMessage(finalData4.get("FROM"), finalData4.get("FROM"), "File declined: " + finalData4.get("FILE")));
+                                files.remove(finalData4.get("DECLINEFILE"));
+                                Platform.runLater(() -> addMessage(finalData4.get("FROM"), finalData4.get("FROM"), "File declined: " + finalData4.get("DECLINEFILE")));
                                 break;
                             case "FILEBYTES":
                                 Map<String, String> finalData6 = data;
-                                Platform.runLater(() -> {
-                                    try {
-                                        DirectoryChooser chooser = new DirectoryChooser();
-                                        chooser.setTitle("Select folder to save file");
-                                        chooser.setInitialDirectory(
-                                                new File(System.getProperty("user.home"))
-                                        );
-                                        File path = chooser.showDialog(btnSendFile.getScene().getWindow());
 
-                                        byte[] buffer = new byte[16 * 1024];
-                                        File file = new File(path, finalData6.get("FILE"));
+                                try {
+                                    byte[] buffer = new byte[16 * 1024];
+                                    File file = new File(saves.get(finalData6.get("FILEBYTES")), finalData6.get("FILEBYTES"));
 
-                                        boolean result = file.createNewFile();
+                                    boolean result = file.createNewFile();
 
-                                        OutputStream out = new FileOutputStream(file, false);
+                                    OutputStream out = new FileOutputStream(file, false);
 
-                                        int count;
-                                        while ((count = dis.read(buffer)) > 0) {
-                                            out.write(buffer, 0, count);
-                                        }
-
-                                        out.flush();
-                                        out.close();
-
-                                        addMessage(finalData6.get("FROM"), finalData6.get("FROM"), "File received: " + finalData6.get("FILE"));
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
+                                    int count;
+                                    int counter = 0;
+                                    while (counter < Long.parseLong(finalData6.get("LENGTH"))) {
+                                        System.out.println("CounterC: " + counter);
+                                        count = dis.read(buffer);
+                                        counter += count;
+                                        System.out.println("C:" + new String(buffer));
+                                        out.write(buffer, 0, count);
                                     }
-                                });
+                                    out.flush();
+                                    out.close();
+
+                                    System.out.println("File received: " + finalData6.get("FILEBYTES"));
+                                    Platform.runLater(() -> addMessage(finalData6.get("FROM"), finalData6.get("FROM"), "File received: " + finalData6.get("FILEBYTES")));
+
+                                    saves.remove(finalData6.get("FILEBYTES"));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                                 break;
                             case "CONNECT":
                                 Map<String, String> finalData1 = data;
